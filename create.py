@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 runs_per_week = 5
 goal_mileage = 800
-png_location= ""
+png_location = credentials.png_location
 
 
 def post_sensor(sensor,data):
@@ -782,7 +782,6 @@ def run_and_graph(latitude,longitude):
     plt.close('all')
 
 def last_run():
-    #for x in reversed(sorted(database)):
 
     last_key = next(iter(reversed(sorted(database))))
 
