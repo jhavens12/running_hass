@@ -803,9 +803,56 @@ def last_run():
 
     for n,x in enumerate(database[last_key]['smash']['notables']):
         n = n + 1
-        print(x)
         sensor['attributes'][x['description']] = n
     post_sensor("sensor.running_last_run_notables",json.dumps(sensor))
+
+
+
+
+    if 'strava_specific' in database[last_key]:
+
+        #prs/best efforts
+        sensor = {}
+        sensor['attributes'] = {}
+
+        pr = []
+        for y in database[last_key]['strava_specific']['best_efforts']: #for each best effort entry
+            if y['pr_rank'] == None:
+                y['pr_rank'] == 0
+            pr.append(str(y['pr_rank'])+" -- "+str(y['name'])+" -- "+str(data.convert_seconds_to_minutes(y['elapsed_time'])))
+
+        for n,prs in enumerate(pr):
+            sensor['attributes'][n] = prs
+
+        sensor['state'] = len(pr)
+        post_sensor("sensor.running_last_run_best_efforts",json.dumps(sensor))
+
+    #achievements/segments
+        sensor = {}
+        sensor['attributes'] = {}
+
+        ach = []
+        for z in database[last_key]['strava_specific']['segment_efforts']:
+            for w in z['achievements']: #list inside dictionary for some reason
+                ach.append(str(w['rank'])+" -- "+str(w['type'])+" -- "+str(z['name'])+" -- "+str(data.convert_seconds_to_minutes(z['elapsed_time'])))
+
+        for n,achs in enumerate(ach):
+            sensor['attributes'][n] = achs
+
+        sensor['state'] = len(ach)
+        post_sensor("sensor.running_last_run_segment_efforts",json.dumps(sensor))
+
+    else:
+        sensor = {}
+        sensor['attributes'] = {}
+        sensor['state'] = 0
+        post_sensor("sensor.running_last_run_best_efforts",json.dumps(sensor))
+
+        sensor = {}
+        sensor['attributes'] = {}
+        sensor['state'] = 0
+        post_sensor("sensor.running_last_run_segment_efforts",json.dumps(sensor))
+        print("Missing Stava Specific Data!")
 
 
 

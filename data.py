@@ -61,7 +61,7 @@ def get_strava_specific(activity_id):
         print("current Time:",str(datetime.datetime.now()))
         time.sleep(3600)
     print("API Sleep...")
-    time.sleep(3)
+    time.sleep(1.5)
     return dataset
 
 def get_strava_data(): #combines my_activities and filter functions
@@ -136,9 +136,11 @@ def update(database,smash):
             print("Activity not in database!",i)
             #add to database
             database[i] = strava[i]
+            database[i]['strava_specific'] = get_strava_specific(database[i]['id']) #add strava specific data to database
             for x in smash: #iterate to find the correct smash record
                 if strava[i]['external_id'] == 'garmin_push_'+str(x['externalId']):
                     database[i]['smash'] = smash_spec(x['activityId']) #add smash to dictionary
+                    database[i]['smash']['notables'] = smash_notables(x['activityId']) #add notables to dictionary
     return database
 
 def prepare():
