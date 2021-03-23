@@ -4,6 +4,7 @@ import get_time
 import datetime
 import math
 import calendar
+import push_me
 import numpy as np
 import json
 import credentials
@@ -1423,7 +1424,7 @@ def running_totals():
     fig.tight_layout()
     plt.savefig(credentials.png_location+"4_Running_Totals.png")
     plt.close('all')
-    
+
 def last_run():
 
     last_key = next(iter(reversed(sorted(database))))

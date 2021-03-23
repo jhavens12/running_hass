@@ -19,26 +19,15 @@ import io
 import credentials
 #####
 
-global mass_figsize
+
 mass_figsize=(13,10)
-png_location = credentials.png_location
 
-#####
-gmail_user = credentials.gmail_user
-gmail_password = credentials.gmail_password
-yag = yagmail.SMTP( gmail_user, gmail_password)
-temp_folder = credentials.temp_folder
-
-global graph_list
-graph_list = []
-
-master_dict = data.run()
+database = data.run()
 
 def append_image(graph_name,plt):
     name = temp_folder+graph_name+'.png' #this needs to change if run by cron
     plt.savefig(name)
     graph_list.append(name)
-
 
 def format_number(number):
     return str("{0:.2f}".format(number))
@@ -63,7 +52,7 @@ def weekly_compare():
 
     week_dict = {}
     for week in weeks_to_calculate:
-        week_dict[week] = master_dict.copy() #make a master dict for each week to calculate
+        week_dict[week] = database.copy() #make a master dict for each week to calculate
 
     for week in week_dict:
         for key in list(week_dict[week]): #for each key in each master dictionary
@@ -254,7 +243,7 @@ def weekly_compare():
     #plt.show()
 
     append_image("Weekly_Compare",plt)
-    plt.savefig(png_location+"1_Weekly_Compare.png")
+    plt.savefig(credentials.png_location+"1_Weekly_Compare.png")
 
     ####
 
@@ -266,7 +255,7 @@ def monthly_compare():
     week_dict = {}
 
     for week in weeks_to_calculate:
-        week_dict[week] = master_dict.copy() #make a master dict for each week to calculate
+        week_dict[week] = database.copy() #make a master dict for each week to calculate
 
     for week in week_dict:
 
@@ -433,7 +422,7 @@ def monthly_compare():
 
     fig.tight_layout()
     fig.subplots_adjust(hspace=0.2)
-    plt.savefig(png_location+"2_Monthly_Compare.png")
+    plt.savefig(credentials.png_location+"2_Monthly_Compare.png")
 
     append_image("Monthly_Compare",plt)
 
@@ -449,13 +438,13 @@ def yearly_compare():
     # 2019 - red
     # goal - white
 
-    # for event in master_dict:
-    #     if master_dict[event]['athlete_count'] == 1:
-    #         if master_dict[event]['treadmill_flagged'] == 'no':
-    #             single_dict[event] = master_dict[event]
+    # for event in database:
+    #     if database[event]['athlete_count'] == 1:
+    #         if database[event]['treadmill_flagged'] == 'no':
+    #             single_dict[event] = database[event]
     #
-    # single_yearly_dict = calc.yearly_totals(single_dict.copy(),0) #this year
-    # single_yearly_dict_2 = calc.yearly_totals(single_dict.copy(),1) #last year
+    # single_yearly_dict = yearly_totals(single_dict.copy(),0) #this year
+    # single_yearly_dict_2 = yearly_totals(single_dict.copy(),1) #last year
 
     label1=int(datetime.datetime.now().year)
     label2=label1-1
@@ -463,11 +452,11 @@ def yearly_compare():
     label4=label1-3 #3 years ago
     label5=label1-4 #4 years ago
 
-    yearly_dict = calc.yearly_totals(master_dict.copy(),0) #current year
-    yearly_dict2 = calc.yearly_totals(master_dict.copy(),1) #last year
-    yearly_dict3 = calc.yearly_totals(master_dict.copy(),2) #two years ago
-    yearly_dict4 = calc.yearly_totals(master_dict.copy(),3) #3 years
-    yearly_dict5 = calc.yearly_totals(master_dict.copy(),4) #4 years
+    yearly_dict = yearly_totals(database.copy(),0) #current year
+    yearly_dict2 = yearly_totals(database.copy(),1) #last year
+    yearly_dict3 = yearly_totals(database.copy(),2) #two years ago
+    yearly_dict4 = yearly_totals(database.copy(),3) #3 years
+    yearly_dict5 = yearly_totals(database.copy(),4) #4 years
 
     fig, (ax1,ax2) = plt.subplots(nrows=2, figsize=mass_figsize)
 
@@ -531,7 +520,7 @@ def yearly_compare():
     fig.tight_layout()
     fig.subplots_adjust(hspace=0.3)
     #plt.show()
-    plt.savefig(png_location+"3_Yearly_Compare.png")
+    plt.savefig(credentials.png_location+"3_Yearly_Compare.png")
     append_image("Yearly_Compare",plt)
 
 def running_totals():
@@ -546,7 +535,7 @@ def running_totals():
     months_back = 24
 
     graph_dict_1 = {}
-    graph_dict_1 = calc.full_running_totals(master_dict.copy(),input1,'distance_miles')
+    graph_dict_1 = full_running_totals(database.copy(),input1,'distance_miles')
 
     for key in list(graph_dict_1.keys()):
         if key < get_time.FOM(months_back):
@@ -554,7 +543,7 @@ def running_totals():
 
     #
     graph_dict_2 = {}
-    graph_dict_2 = calc.full_running_totals(master_dict.copy(),input2,'distance_miles')
+    graph_dict_2 = full_running_totals(database.copy(),input2,'distance_miles')
 
     for key in list(graph_dict_2.keys()):
         if key < get_time.FOM(months_back):
@@ -562,7 +551,7 @@ def running_totals():
 
     #
     graph_dict_3 = {}
-    graph_dict_3 = calc.full_running_totals(master_dict.copy(),input3,'distance_miles')
+    graph_dict_3 = full_running_totals(database.copy(),input3,'distance_miles')
 
     for key in list(graph_dict_3.keys()):
         if key < get_time.FOM(months_back):
@@ -570,7 +559,7 @@ def running_totals():
 
     #
     graph_dict_4 = {}
-    graph_dict_4 = calc.full_running_totals(master_dict.copy(),input4,'distance_miles')
+    graph_dict_4 = full_running_totals(database.copy(),input4,'distance_miles')
 
     for key in list(graph_dict_4.keys()):
         if key < get_time.FOM(months_back):
@@ -578,7 +567,7 @@ def running_totals():
 
     #
     graph_dict_5 = {}
-    graph_dict_5 = calc.full_running_totals(master_dict.copy(),input5,'distance_miles')
+    graph_dict_5 = full_running_totals(database.copy(),input5,'distance_miles')
 
     for key in list(graph_dict_5.keys()):
         if key < get_time.FOM(months_back):
@@ -586,7 +575,7 @@ def running_totals():
 
     #
     graph_dict_6 = {}
-    graph_dict_6 = calc.full_running_totals(master_dict.copy(),input6,'distance_miles')
+    graph_dict_6 = full_running_totals(database.copy(),input6,'distance_miles')
 
     for key in list(graph_dict_6.keys()):
         if key < get_time.FOM(months_back):
@@ -644,7 +633,7 @@ def running_totals():
     fig.subplots_adjust(hspace=0.2)
     fig.tight_layout()
     append_image("Running_Totals",plt)
-    plt.savefig(png_location+"4_Running_Totals.png")
+    plt.savefig(credentials.png_location+"4_Running_Totals.png")
 
 
 ####

@@ -64,7 +64,8 @@ def get_strava_specific(activity_id):
     time.sleep(1.5)
     return dataset
 
-def get_strava_data(): #combines my_activities and filter functions
+def get_strava_latest():
+    #gets last strava activity id for testing
     try:
         with open('./access_token.txt') as f:
             access_token = f.read().splitlines()[0] #only grab first line, remove /n from string
@@ -73,15 +74,25 @@ def get_strava_data(): #combines my_activities and filter functions
         print("No Access Token found in file! Renewing")
         access_token = renew.main()
 
+    url = 'https://www.strava.com/api/v3/athlete/activities'
+    header = {'Authorization': 'Bearer '+access_token}
+    param = {'per_page':5, 'page':1}
+    print("Getting latest 5 Activities")
+    dataset = requests.get(url, headers=header, params=param).json()
+    #pprint.pprint(dataset)
 
-    def get_count():
-        url = 'https://www.strava.com/api/v3/athlete/activities'
-        header = {'Authorization': 'Bearer '+access_token}
-        param = {'per_page':200, 'page':1}
-        print("Running get_count to test")
-        dataset = requests.get(url, headers=header, params=param).json()
-        count = len(dataset)
-        return count
+    for event in dataset:
+        if wanted_event(event):
+            return event['id']
+
+def get_strava_data(): #combines my_activities and filter functions
+    try:
+        with open('./access_token.txt') as f:
+            access_token = f.read().splitlines()[0] #only grab first line, remove /n from string
+            print("Access Token: "+access_token)
+    except Exception:
+        print("No Access Token found in file! Renewing")
+        access_token = renew.main()
 
     url = 'https://www.strava.com/api/v3/athlete/activities'
     header = {'Authorization': 'Bearer '+access_token}
@@ -92,7 +103,7 @@ def get_strava_data(): #combines my_activities and filter functions
 
     #stop here to check data
     if count == 2: #if there is an error
-        print(dataset)
+        pprint.pprint(dataset)
         #this runs if there is a key found in the text file, but it is expired
         print("Access Token is bad, requesting new one with Refresh Token and restarting script")
         print("Something happens here to make me fail, count is 2 even though script restarts")
@@ -111,6 +122,8 @@ def get_strava_data(): #combines my_activities and filter functions
         dataset = []
         count = 0
         get_strava_data() #start over
+    else:
+        pass
 
 
     #now continue getting data
@@ -127,7 +140,8 @@ def get_strava_data(): #combines my_activities and filter functions
     #done getting data at this point
     return dataset
 
-def update(database,smash):
+def update(database):
+    smash= get_smash_data()
     strava = get_strava_data()
     return_dict = {}
     for i in strava:
@@ -317,20 +331,23 @@ def run():
         #print("Found existing dictionary in time period")
         #del database['timestamp']
 
-    smash = get_smash_data()
-    new_key = smash[0]['externalId']
-    print("KEY: ",smash[0]['activityId'])
+    #smash = get_smash_data()
+    new_key = get_strava_latest()
+    #new_key = smash[0]['externalId']
+    print("Latest Activity:",new_key)
     force_update = 1
     for x in reversed(sorted(database)):
-        if database[x]['external_id'] == 'garmin_push_'+new_key:
+        print(database[x]['id'])
+        if database[x]['id'] == new_key:
+        #if database[x]['external_id'] == 'garmin_push_'+new_key:
             force_update = 0
-            print('found matching run to latest smashrun... run')
-            print("Found: ",x)
-            print("no need to update at this time")
+            print('Found latest public run on Strava in Database')
+            print("Will not update database")
 
     if force_update == 1:
         print("Did not find latest activity")
-        database = update(database,smash) #update and pass smash dic used to check
+        push_me.notify("New Run Found",'Updating Database...','-2')
+        database = update(database) #update and pass smash dic used to check
         #perform update to dictionary
         #save and close the file
         close_file(database)
