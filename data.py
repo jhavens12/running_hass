@@ -95,6 +95,7 @@ def get_strava_data(): #combines my_activities and filter functions
         print(dataset)
         #this runs if there is a key found in the text file, but it is expired
         print("Access Token is bad, requesting new one with Refresh Token and restarting script")
+        print("Something happens here to make me fail, count is 2 even though script restarts")
         print("------------")
         try:
             with open('./refresh_token.txt') as f:
@@ -105,6 +106,10 @@ def get_strava_data(): #combines my_activities and filter functions
 
         access_token = renew.reauth(refresh_token)
         print("Starting Over...")
+        print("resetting count")
+        print("resetting dataset")
+        dataset = []
+        count = 0
         get_strava_data() #start over
 
 
