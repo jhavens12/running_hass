@@ -337,7 +337,6 @@ def run():
     print("Latest Activity:",new_key)
     force_update = 1
     for x in reversed(sorted(database)):
-        print(database[x]['id'])
         if database[x]['id'] == new_key:
         #if database[x]['external_id'] == 'garmin_push_'+new_key:
             force_update = 0
