@@ -1442,6 +1442,7 @@ def last_run():
     sensor['attributes']['Distance'] = database[last_key]['distance_miles']
     sensor['attributes']['Pace'] = database[last_key]['pace']
     sensor['attributes']['Speed Variability'] = database[last_key]['smash']['speedVariability']
+    sensor['attributes']['Description'] = database[last_key]['strava_specific']['description']
     post_sensor("sensor.running_last_run",json.dumps(sensor))
 
     sensor = {}

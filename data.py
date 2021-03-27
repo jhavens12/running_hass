@@ -364,7 +364,7 @@ def run():
 
     if force_update == 1:
         print("Did not find latest activity")
-        push_me.notify("New Run Found",'Updating Database...','-2')
+        push_me.notify("New Run Found",'Updating Database...\n'+str(new_key)+"\n"+credentials.machine_id,'-2')
         database = update(database) #update and pass smash dic used to check
         #perform update to dictionary
         #save and close the file
