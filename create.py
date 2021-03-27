@@ -1479,21 +1479,38 @@ def last_run():
         sensor['state'] = len(database[last_key]['strava_specific']['best_efforts'])
         post_sensor("sensor.running_last_run_best_efforts",json.dumps(sensor))
 
-    #achievements/segments
+    #segment achivements
         sensor = {}
         sensor['attributes'] = {}
 
         ach = []
         for z in database[last_key]['strava_specific']['segment_efforts']:
             for w in z['achievements']: #list inside dictionary for some reason
-                ach.append(str(w['rank'])+" -- "+str(w['type'])+" -- "+str(z['name'])+" -- "+str(data.convert_seconds_to_minutes(z['elapsed_time'])))
+                if w['type'] == 'segment_effort_count_leader':
+                    ach_type = 'Leader'
+                else:
+                    ach_type = w['type']
+                ach.append(str(w['rank'])+" -- "+ach_type+" -- "+str(z['name'])+" -- "+str(data.convert_seconds_to_minutes(z['elapsed_time'])))
+                sensor['attributes'][z['name']] = ach_type+" - "+str(w['rank'])+" - "+str(data.convert_seconds_to_minutes(z['elapsed_time']))
 
+        sensor['state'] = len(ach)
+        post_sensor("sensor.running_last_run_segment_achievements",json.dumps(sensor))
 
-        for n,achs in enumerate(ach):
-            sensor['attributes'][n] = achs
+        sensor = {}
+        sensor['attributes'] = {}
+
+        ach = []
+        n = 1
+        for z in database[last_key]['strava_specific']['segment_efforts']:
+            if z['achievements'] == []: #list inside dictionary for some reason
+                sensor['attributes'][z['name']+" "+str(n)] = str(data.convert_seconds_to_minutes(z['elapsed_time']))
+                ach.append(n)
+                n = n + 1
 
         sensor['state'] = len(ach)
         post_sensor("sensor.running_last_run_segment_efforts",json.dumps(sensor))
+
+
 
     else:
         sensor = {}
@@ -1504,8 +1521,11 @@ def last_run():
         sensor = {}
         sensor['attributes'] = {}
         sensor['state'] = 0
-        post_sensor("sensor.running_last_run_segment_efforts",json.dumps(sensor))
+        post_sensor("sensor.running_last_run_segment_achievements",json.dumps(sensor))
         print("Missing Stava Specific Data!")
+
+
+
 
 
 
