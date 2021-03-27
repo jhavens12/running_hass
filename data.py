@@ -66,7 +66,7 @@ def get_strava_specific(activity_id):
     return dataset
 
 def get_strava_latest():
-    #gets last strava activity id for testing
+    print("gets last strava activity id for testing")
     try:
         with open('./access_token.txt') as f:
             access_token = f.read().splitlines()[0] #only grab first line, remove /n from string
@@ -79,14 +79,34 @@ def get_strava_latest():
     header = {'Authorization': 'Bearer '+access_token}
     param = {'per_page':5, 'page':1}
     print("Getting latest 5 Activities")
+
     dataset = requests.get(url, headers=header, params=param).json()
     #pprint.pprint(dataset)
+    if 'message' in dataset:
+        print("FOUND MESSAGE IN RESPONSE - MEANING ERROR")
+
+        try:
+            with open('./refresh_token.txt') as f:
+                refresh_token = f.read().splitlines()[0] #only grab first line, remove /n from string
+        except Exception:
+            print("refresh_token.txt does not exist - exiting!")
+            exit()
+
+        print("Refreshing Access Token")
+        access_token = renew.reauth(refresh_token)
+        print("Token Refreshed, please run again")
+        exit()
+        #get_strava_latest() #start over
+
+    else:
+        pass
 
     for event in dataset:
         if wanted_event(event):
             return event['id']
 
 def get_strava_data(): #combines my_activities and filter functions
+    print("Getting Strava Data!")
     try:
         with open('./access_token.txt') as f:
             access_token = f.read().splitlines()[0] #only grab first line, remove /n from string
@@ -118,8 +138,6 @@ def get_strava_data(): #combines my_activities and filter functions
 
         access_token = renew.reauth(refresh_token)
         print("Starting Over...")
-        print("resetting count")
-        print("resetting dataset")
         dataset = []
         count = 0
         get_strava_data() #start over
