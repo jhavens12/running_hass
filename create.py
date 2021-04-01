@@ -803,7 +803,7 @@ def just_text(dataset):
     ax.set_axis_off()
 
 
-    plt.savefig(png_location+"Last_Run_Text.png", transparent='True')
+    plt.savefig(png_location+"Last_Run_Stats.png", transparent='True')
     plt.close('all')
 
 def trend_line(x_list,y_list):
