@@ -15,6 +15,7 @@ import matplotlib.dates as mdates
 import pandas as pd
 from time import mktime
 from sklearn.linear_model import LinearRegression
+from pathlib import Path
 
 runs_per_week = 5
 goal_mileage = 800
@@ -787,41 +788,23 @@ def run_and_graph(latitude,longitude):
     ax.set_aspect(aspect=1.5) #not sure how to fix this, adjusting this changes the width of the graph
     plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
 
+
     print("Saving...")
+    #plt.show()
     plt.savefig(png_location+"Last_Run.png", transparent='True')
     plt.close('all')
 
-def gen_text(database): #takes in dictionary of titles and values
-    w = 200
-    h = 100
-    filename = png_location+"Last_Run_Stats.png"
-    img = Image.new('RGBA', (w, h), (255, 0, 0, 0))
-    fnt = ImageFont.truetype('./resource/din_medium_regular.ttf.icloud', 30)
-    d = ImageDraw.Draw(img)
-    #
-    # shoe_print = Image.open("./Icons/shoe-print.png")
-    # timer = Image.open("./Icons/timer.png")
-    # speedometer = Image.open("./Icons/speedometer.png")
+def just_text(dataset):
+    fig,ax=plt.subplots()
+    summary_text = str(dataset['distance_miles'])+" Miles \n"+str(dataset['pace'])+"\n"+str(dataset['elapsed'])
 
-    #x,y
-    row_1 = 10
-    row_2 = 40
-    row_3 = 70
+    plt.text(.5, .5, summary_text, ha='center', va='center', color='white', font=Path('./resource/din_medium_regular.ttf'), fontsize=52)
 
-    d.text((5,row_1), str(str(database['distance_miles'])+" Miles") , font=fnt, fill=(255, 255, 255))
-    d.text((5,row_2), str(str(database['pace'])+" Pace") , font=fnt, fill=(255, 255, 255))
-    d.text((5,row_3), str(str(database['elapsed'])+" Total") , font=fnt, fill=(255, 255, 255))
+    ax.set_axis_off()
 
 
-    #d = Image.open(filename)
-
-    # d.paste(shoe_print, (0, row_1), shoe_print)
-    # d.paste(timer, (200, row_1), timer)
-    # d.paste(speedometer, (400, row_1), speedometer)
-
-    # d.save(filename)
-    # photos.create_image_asset(filename) #ios
-    img.save(filename)
+    plt.savefig(png_location+"Last_Run_Text.png", transparent='True')
+    plt.close('all')
 
 def trend_line(x_list,y_list):
     df = pd.DataFrame()
@@ -1433,7 +1416,7 @@ def last_run():
     run_and_graph(database[last_key]['smash']['recordingValues'][1],database[last_key]['smash']['recordingValues'][2])
 
     #make text
-    #gen_text(database[last_key])
+    just_text(database[last_key])
 
     sensor = {}
     sensor['state'] = database[last_key]['name']

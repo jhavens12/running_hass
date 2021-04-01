@@ -311,7 +311,7 @@ def smash_spec(activity_id):
         print("Current time: ",str(datetime.datetime.now()))
         time.sleep(3600)
     print("API Sleep...")
-    time.sleep(15)
+    time.sleep(1.5)
 
     return dataset
 
@@ -329,7 +329,7 @@ def smash_notables(activity_id):
         print("Current time: ",str(datetime.datetime.now()))
         time.sleep(3600)
     print("API Sleep...")
-    time.sleep(15)
+    time.sleep(1.5)
 
     return dataset
 
